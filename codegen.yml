@@ -1,9 +1,9 @@
 overwrite: true
 schema:
-  - http://localhost:8080/v1/graphql:
+  - http://localhost:8020/v1/graphql:
       headers:
         content-type: application/json
-        x-hasura-admin-secret: admin_secret
+        x-hasura-admin-secret: localadminpassword
 documents: src/**/*.graphql
 generates:
   src/generated/graphql.ts:

@@ -1,13 +1,15 @@
 import { GraphQLClient } from "graphql-request";
-import { Account } from "next-auth";
 import {
   Adapter,
+  AdapterAccount,
   AdapterSession,
   AdapterUser,
   VerificationToken,
 } from "next-auth/adapters";
 
-import { getSdk } from "./generated/graphql";
+import _ from "lodash";
+
+import { AccountInsertInput, getSdk } from "./generated/graphql";
 
 type HasuraAdapterArgs = {
   endpoint: string;
@@ -46,13 +48,13 @@ export const HasuraAdapter = ({
     // User
     createUser: async (data) => {
       const res = await sdk.CreateUser({ data });
-      const user = transformDate(res?.insert_users_one, "emailVerified");
+      const user = transformDate(res?.insertUser, "emailVerified");
 
       return user as AdapterUser;
     },
     getUser: async (id) => {
       const res = await sdk.GetUser({ id });
-      const user = transformDate(res?.users_by_pk, "emailVerified");
+      const user = transformDate(res?.user, "emailVerified");
 
       return user as AdapterUser;
     },
@@ -81,20 +83,20 @@ export const HasuraAdapter = ({
     },
     updateUser: async ({ id, ...data }) => {
       const res = await sdk.UpdateUser({ id, data });
-      const user = transformDate(res?.update_users_by_pk, "emailVerified");
+      const user = transformDate(res?.updateUser, "emailVerified");
 
       return user as AdapterUser;
     },
     deleteUser: async (id) => {
       const res = await sdk.DeleteUser({ id });
-      const user = transformDate(res?.delete_users_by_pk, "emailVerified");
+      const user = transformDate(res?.deleteUser, "emailVerified");
 
       return user as AdapterUser;
     },
     // Session
     createSession: async (data) => {
       const res = await sdk.CreateSession({ data });
-      const session = transformDate(res?.insert_sessions_one, "expires");
+      const session = transformDate(res?.insertSession, "expires");
 
       return session as AdapterSession;
     },
@@ -111,7 +113,7 @@ export const HasuraAdapter = ({
     updateSession: async ({ sessionToken, ...data }) => {
       const res = await sdk.UpdateSession({ sessionToken, data });
       const session = transformDate(
-        res?.update_sessions?.returning?.[0],
+        res?.updateSessions?.returning?.[0],
         "expires"
       );
 
@@ -122,7 +124,7 @@ export const HasuraAdapter = ({
     deleteSession: async (sessionToken) => {
       const res = await sdk.DeleteSession({ sessionToken });
       const session = transformDate(
-        res?.delete_sessions?.returning?.[0],
+        res?.deleteSessions?.returning?.[0],
         "expires"
       );
 
@@ -132,24 +134,28 @@ export const HasuraAdapter = ({
     },
     // Account
     linkAccount: async (data) => {
-      const res = await sdk.CreateAccount({ data });
-      const account = res?.insert_accounts_one;
+      const camelCaseData: AccountInsertInput = _.mapKeys(data, (v, k) =>
+        _.camelCase(k)
+      );
 
-      return account as Account;
+      const res = await sdk.CreateAccount({ data: camelCaseData });
+      const account = res?.insertAccount;
+
+      return account as AdapterAccount;
     },
     unlinkAccount: async ({ providerAccountId, provider }) => {
       const res = await sdk.DeleteAccount({ provider, providerAccountId });
-      const account = res?.delete_accounts?.returning?.[0];
+      const account = res?.deleteAccounts?.returning?.[0];
 
       if (!account) return;
 
-      return account as Account;
+      return account as AdapterAccount;
     },
     // Verification Token
     createVerificationToken: async (data) => {
       const res = await sdk.CreateVerificationToken({ data });
       const verificationToken = transformDate(
-        res?.insert_verification_tokens_one,
+        res?.insertVerificationToken,
         "expires"
       );
 
@@ -158,7 +164,7 @@ export const HasuraAdapter = ({
     useVerificationToken: async ({ identifier, token }) => {
       const res = await sdk.DeleteVerificationToken({ identifier, token });
       const verificationToken = transformDate(
-        res?.delete_verification_tokens?.returning?.[0],
+        res?.deleteVerificationTokens?.returning?.[0],
         "expires"
       );
 

@@ -1,0 +1,18 @@
+table:
+  name: verification_token
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_root_fields:
+    delete: deleteVerificationTokens
+    delete_by_pk: deleteVerificationToken
+    insert: insertVerificationTokens
+    insert_one: insertVerificationToken
+    select: verificationTokens
+    select_aggregate: verificationTokensAggregate
+    select_by_pk: verificationToken
+    select_stream: verificationTokensStream
+    update: updateVerificationTokens
+    update_by_pk: updateVerificationToken
+    update_many: updateManyVerificationTokens

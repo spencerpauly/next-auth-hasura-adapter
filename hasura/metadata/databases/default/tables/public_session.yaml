@@ -1,0 +1,22 @@
+table:
+  name: session
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_root_fields:
+    delete: deleteSessions
+    delete_by_pk: deleteSession
+    insert: insertSessions
+    insert_one: insertSession
+    select: sessions
+    select_aggregate: sessionsAggregate
+    select_by_pk: session
+    select_stream: sessionsStream
+    update: updateSessions
+    update_by_pk: updateSession
+    update_many: updateManySessions
+object_relationships:
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id

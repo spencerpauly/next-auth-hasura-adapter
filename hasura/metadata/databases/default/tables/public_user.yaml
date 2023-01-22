@@ -1,0 +1,33 @@
+table:
+  name: user
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_root_fields:
+    delete: deleteUsers
+    delete_by_pk: deleteUser
+    insert: insertUsers
+    insert_one: insertUser
+    select: users
+    select_aggregate: usersAggregate
+    select_by_pk: user
+    select_stream: usersStream
+    update: updateUsers
+    update_by_pk: updateUser
+    update_many: updateManyUsers
+array_relationships:
+  - name: accounts
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: account
+          schema: public
+  - name: sessions
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: session
+          schema: public
